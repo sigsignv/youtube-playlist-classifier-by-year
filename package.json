@@ -3,5 +3,8 @@
   "name": "youtube-playlist-classifier-by-year",
   "version": "0.1.0",
   "author": "Sigsign <sig@signote.cc>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ts-node": "^10.9.1"
+  }
 }
