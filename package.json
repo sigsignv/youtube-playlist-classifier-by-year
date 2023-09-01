@@ -4,7 +4,15 @@
   "version": "0.1.0",
   "author": "Sigsign <sig@signote.cc>",
   "license": "Apache-2.0",
+  "scripts": {
+    "lint": "eslint src/**/*.ts"
+  },
   "dependencies": {
     "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "eslint": "^8.48.0"
   }
 }
