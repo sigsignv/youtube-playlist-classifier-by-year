@@ -1,0 +1,21 @@
+{
+	"name": "Node",
+
+	// Using Docker Compose
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspace",
+
+	// instead root
+	"remoteUser": "node",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"EditorConfig.EditorConfig"
+			],
+            "settings": {}
+		}
+	}
+}
