@@ -10,7 +10,7 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
     const youtube = google.youtube({ version: 'v3' })
 
     const response = await youtube.playlists.list({
-        part: ['id', 'snippet'],
+        part: ['snippet'],
         auth: client,
         fields: 'items(id,snippet(title))',
         maxResults: 50,
