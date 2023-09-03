@@ -1,5 +1,5 @@
-import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
+import { google } from 'googleapis'
 
 type Playlist = {
     id: string
@@ -33,4 +33,29 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
     }
 
     return playlists
+}
+
+export async function createPlaylist(client: OAuth2Client, title: string): Promise<Playlist> {
+    const youtube = google.youtube({ version: 'v3' })
+
+    const response = await youtube.playlists.insert({
+        part: ['snippet', 'status'],
+        auth: client,
+        fields: 'id,snippet(title)',
+        requestBody: {
+            snippet: {
+                title: title,
+            },
+            status: {
+                privacyStatus: 'private',
+            },
+        },
+    })
+
+    const playlist: Playlist = {
+        id: response.data?.id ?? '',
+        title: response.data?.snippet?.title ?? '',
+    }
+
+    return playlist
 }
