@@ -3,7 +3,7 @@ import { google } from 'googleapis'
 import { createInterface } from 'node:readline/promises'
 import { getConfig, setConfig } from './token.ts'
 
-export async function auth(): Promise<OAuth2Client> {
+export async function getOAuth2Client(): Promise<OAuth2Client> {
     const token = await getConfig()
     const client = new google.auth.OAuth2(token.id, token.secret, 'urn:ietf:wg:oauth:2.0:oob')
     if (token.credentials) {

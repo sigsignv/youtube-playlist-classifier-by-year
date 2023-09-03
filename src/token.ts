@@ -1,6 +1,6 @@
+import { Credentials } from 'google-auth-library'
 import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import { Credentials } from 'google-auth-library'
 
 export type Token = {
     id: string
