@@ -12,7 +12,6 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
     const response = await youtube.playlists.list({
         part: ['snippet'],
         auth: client,
-        fields: 'items(id,snippet(title))',
         maxResults: 50,
         mine: true,
         pageToken: pageToken,
@@ -28,11 +27,9 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
     }
 
     const nextPageToken = response?.data?.nextPageToken
-    if (nextPageToken) {
-        playlists.concat(await getPlaylists(client, nextPageToken))
-    }
+    const nextPlaylists = nextPageToken ? await getPlaylists(client, nextPageToken) : []
 
-    return playlists
+    return playlists.concat(nextPlaylists)
 }
 
 export async function createPlaylist(client: OAuth2Client, title: string): Promise<Playlist> {
