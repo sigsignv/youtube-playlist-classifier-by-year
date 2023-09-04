@@ -20,7 +20,7 @@ export async function getVideos(client: OAuth2Client, playlistId: string, pageTo
     })
 
     const videos: Video[] = []
-    const items = response.data?.items ?? []
+    const items = response.data.items ?? []
     for (const item of items) {
         videos.push({
             id: item.snippet?.resourceId?.videoId ?? '',
@@ -30,7 +30,7 @@ export async function getVideos(client: OAuth2Client, playlistId: string, pageTo
         })
     }
 
-    const nextPageToken = response?.data?.nextPageToken
+    const nextPageToken = response.data.nextPageToken
     const nextVideos = nextPageToken ? await getVideos(client, playlistId, nextPageToken) : []
 
     return videos.concat(nextVideos)

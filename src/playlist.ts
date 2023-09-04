@@ -18,7 +18,7 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
     })
 
     const playlists: Playlist[] = []
-    const items = response.data?.items ?? []
+    const items = response.data.items ?? []
     for (const item of items) {
         playlists.push({
             id: item.id ?? '',
@@ -26,7 +26,7 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
         })
     }
 
-    const nextPageToken = response?.data?.nextPageToken
+    const nextPageToken = response.data.nextPageToken
     const nextPlaylists = nextPageToken ? await getPlaylists(client, nextPageToken) : []
 
     return playlists.concat(nextPlaylists)
@@ -49,8 +49,8 @@ export async function createPlaylist(client: OAuth2Client, title: string): Promi
     })
 
     const playlist: Playlist = {
-        id: response.data?.id ?? '',
-        title: response.data?.snippet?.title ?? '',
+        id: response.data.id ?? '',
+        title: response.data.snippet?.title ?? '',
     }
 
     return playlist
