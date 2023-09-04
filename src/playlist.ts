@@ -1,9 +1,26 @@
 import { OAuth2Client } from 'google-auth-library'
-import { google } from 'googleapis'
+import { google, youtube_v3 } from 'googleapis'
 
 type Playlist = {
     id: string
     title: string
+}
+
+function convertPlaylist(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
+    if (!Array.isArray(items) || items.length === 0) {
+        return []
+    }
+
+    const playlists = []
+    for (const item of items) {
+        const id = item.id
+        const title = item.snippet?.title
+        if (typeof id === 'string' && typeof title === 'string') {
+            playlists.push({id, title})
+        }
+    }
+
+    return playlists
 }
 
 export async function getPlaylists(client: OAuth2Client, pageToken: string = ''): Promise<Playlist[]> {
@@ -17,14 +34,7 @@ export async function getPlaylists(client: OAuth2Client, pageToken: string = '')
         pageToken: pageToken,
     })
 
-    const playlists: Playlist[] = []
-    const items = response.data.items ?? []
-    for (const item of items) {
-        playlists.push({
-            id: item.id ?? '',
-            title: item.snippet?.title ?? ''
-        })
-    }
+    const playlists: Playlist[] = convertPlaylist(response.data.items)
 
     const nextPageToken = response.data.nextPageToken
     const nextPlaylists = nextPageToken ? await getPlaylists(client, nextPageToken) : []
