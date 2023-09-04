@@ -38,7 +38,6 @@ export async function createPlaylist(client: OAuth2Client, title: string): Promi
     const response = await youtube.playlists.insert({
         part: ['snippet', 'status'],
         auth: client,
-        fields: 'id,snippet(title)',
         requestBody: {
             snippet: {
                 title: title,
