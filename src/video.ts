@@ -4,7 +4,8 @@ import { google } from 'googleapis'
 type Video = {
     id: string
     title: string
-    ChannelName: string
+    channelName: string
+    playlistId: string
     publishedAt: string
 }
 
@@ -25,7 +26,8 @@ export async function getVideos(client: OAuth2Client, playlistId: string, pageTo
         videos.push({
             id: item.snippet?.resourceId?.videoId ?? '',
             title: item.snippet?.title ?? '',
-            ChannelName: item.snippet?.videoOwnerChannelTitle ?? '',
+            channelName: item.snippet?.videoOwnerChannelTitle ?? '',
+            playlistId: item.snippet?.playlistId ?? '',
             publishedAt: item.contentDetails?.videoPublishedAt ?? '',
         })
     }
