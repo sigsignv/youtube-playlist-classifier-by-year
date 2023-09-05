@@ -6,6 +6,15 @@ type Playlist = {
     title: string
 }
 
+type FetchPlaylistResponse = {
+    lists: Playlist[]
+    nextPageToken?: string | null
+}
+
+type FetchPlaylistOptions = {
+    pageToken?: string
+}
+
 function convertPlaylist(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
     if (!Array.isArray(items) || items.length === 0) {
         return []
@@ -23,23 +32,33 @@ function convertPlaylist(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
     return lists
 }
 
-export async function getPlaylists(client: OAuth2Client, pageToken: string = ''): Promise<Playlist[]> {
+async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistOptions): Promise<FetchPlaylistResponse> {
     const youtube = google.youtube({ version: 'v3' })
 
-    const response = await youtube.playlists.list({
+    const resp = await youtube.playlists.list({
         part: ['snippet'],
         auth: client,
         maxResults: 50,
         mine: true,
-        pageToken: pageToken,
+        pageToken: options?.pageToken ?? ''
     })
 
-    const playlists: Playlist[] = convertPlaylist(response.data.items)
+    const lists = convertPlaylist(resp.data.items)
+    const nextPageToken = resp.data.nextPageToken
 
-    const nextPageToken = response.data.nextPageToken
-    const nextPlaylists = nextPageToken ? await getPlaylists(client, nextPageToken) : []
+    return { lists, nextPageToken }
+}
 
-    return playlists.concat(nextPlaylists)
+export async function getOwnPlaylists(client: OAuth2Client): Promise<Playlist[]> {
+    let resp = await fetchOwnPlaylists(client)
+    let lists = resp.lists
+
+    while (resp.nextPageToken) {
+        resp = await fetchOwnPlaylists(client, { pageToken: resp.nextPageToken })
+        lists = lists.concat(resp.lists)
+    }
+
+    return lists
 }
 
 export async function createPlaylist(client: OAuth2Client, title: string): Promise<Playlist> {
