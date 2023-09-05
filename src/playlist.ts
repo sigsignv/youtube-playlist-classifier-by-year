@@ -6,12 +6,12 @@ type Playlist = {
     title: string
 }
 
-type FetchPlaylistResponse = {
+type FetchPlaylistsResponse = {
     lists: Playlist[]
     nextPageToken?: string | null
 }
 
-type FetchPlaylistOptions = {
+type FetchPlaylistsOptions = {
     pageToken?: string
 }
 
@@ -32,7 +32,7 @@ function convertPlaylists(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
     return lists
 }
 
-async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistOptions): Promise<FetchPlaylistResponse> {
+async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistsOptions): Promise<FetchPlaylistsResponse> {
     const youtube = google.youtube({ version: 'v3' })
 
     const resp = await youtube.playlists.list({
