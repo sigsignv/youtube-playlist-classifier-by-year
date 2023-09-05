@@ -8,6 +8,16 @@ type Video = {
     publishedAt: string
 }
 
+type FetchVideosResponse = {
+    videos: Video[]
+    nextPageToken?: string | null
+}
+
+type FetchVideosOptions = {
+    playlistId: string
+    pageToken?: string
+}
+
 function convertVideos(items?: youtube_v3.Schema$PlaylistItem[]): Video[] {
     if (!Array.isArray(items) || items.length === 0) {
         return []
@@ -32,21 +42,34 @@ function convertVideos(items?: youtube_v3.Schema$PlaylistItem[]): Video[] {
     return videos
 }
 
-export async function getVideos(client: OAuth2Client, playlistId: string, pageToken: string = ''): Promise<Video[]> {
+async function fetchVideosFromPlaylist(client: OAuth2Client, options: FetchVideosOptions): Promise<FetchVideosResponse> {
     const youtube = google.youtube({ version: 'v3' })
 
-    const response = await youtube.playlistItems.list({
+    const resp = await youtube.playlistItems.list({
         part: ['contentDetails', 'snippet'],
         auth: client,
-        playlistId: playlistId,
+        playlistId: options.playlistId,
         maxResults: 50,
-        pageToken: pageToken,
+        pageToken: options.pageToken ?? ''
     })
 
-    const videos = convertVideos(response.data.items)
+    const videos = convertVideos(resp.data.items)
+    const nextPageToken = resp.data.nextPageToken
 
-    const nextPageToken = response.data.nextPageToken
-    const nextVideos = nextPageToken ? await getVideos(client, playlistId, nextPageToken) : []
+    return { videos, nextPageToken }
+}
 
-    return videos.concat(nextVideos)
+export async function getVideos(client: OAuth2Client, playlistId: string): Promise<Video[]> {
+    let resp = await fetchVideosFromPlaylist(client, { playlistId })
+    let videos = resp.videos
+
+    while (resp.nextPageToken) {
+        resp = await fetchVideosFromPlaylist(client, {
+            playlistId: playlistId,
+            pageToken: resp.nextPageToken,
+        })
+        videos = videos.concat(resp.videos)
+    }
+
+    return videos
 }
