@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path'
 export type Token = {
     id: string
     secret: string
-    credentials: Credentials | null
+    credentials?: Credentials
 }
 
 function getConfigPath(): string {
@@ -18,8 +18,12 @@ async function readConfig(filepath: string): Promise<Token> {
     const token: Token = {
         id: json['CLIENT_ID'] ?? '',
         secret: json['CLIENT_SECRET'] ?? '',
-        credentials: json['CREDENTIALS'] ?? null
     }
+    const credentials = json['CREDENTIALS']
+    if (credentials) {
+        token.credentials = credentials
+    }
+
     return token
 }
 
