@@ -1,12 +1,35 @@
 import { OAuth2Client } from "google-auth-library"
-import { google } from 'googleapis'
+import { google, youtube_v3 } from 'googleapis'
 
 type Video = {
     id: string
     title: string
     channelName: string
-    playlistId: string
     publishedAt: string
+}
+
+function convertVideos(items?: youtube_v3.Schema$PlaylistItem[]): Video[] {
+    if (!Array.isArray(items) || items.length === 0) {
+        return []
+    }
+
+    const videos: Video[] = []
+    for (const item of items) {
+        const id = item.snippet?.resourceId?.videoId
+        const title = item.snippet?.title
+        const channelName = item.snippet?.videoOwnerChannelTitle
+        const publishedAt = item.contentDetails?.videoPublishedAt
+        if (
+            typeof id === 'string' &&
+            typeof title === 'string' &&
+            typeof channelName === 'string' &&
+            typeof publishedAt === 'string'
+        ) {
+            videos.push({ id, title, channelName, publishedAt })
+        }
+    }
+
+    return videos
 }
 
 export async function getVideos(client: OAuth2Client, playlistId: string, pageToken: string = ''): Promise<Video[]> {
@@ -20,17 +43,7 @@ export async function getVideos(client: OAuth2Client, playlistId: string, pageTo
         pageToken: pageToken,
     })
 
-    const videos: Video[] = []
-    const items = response.data.items ?? []
-    for (const item of items) {
-        videos.push({
-            id: item.snippet?.resourceId?.videoId ?? '',
-            title: item.snippet?.title ?? '',
-            channelName: item.snippet?.videoOwnerChannelTitle ?? '',
-            playlistId: item.snippet?.playlistId ?? '',
-            publishedAt: item.contentDetails?.videoPublishedAt ?? '',
-        })
-    }
+    const videos = convertVideos(response.data.items)
 
     const nextPageToken = response.data.nextPageToken
     const nextVideos = nextPageToken ? await getVideos(client, playlistId, nextPageToken) : []
