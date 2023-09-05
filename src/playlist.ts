@@ -11,16 +11,16 @@ function convertPlaylist(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
         return []
     }
 
-    const playlists = []
+    const lists = []
     for (const item of items) {
         const id = item.id
         const title = item.snippet?.title
         if (typeof id === 'string' && typeof title === 'string') {
-            playlists.push({id, title})
+            lists.push({id, title})
         }
     }
 
-    return playlists
+    return lists
 }
 
 export async function getPlaylists(client: OAuth2Client, pageToken: string = ''): Promise<Playlist[]> {
