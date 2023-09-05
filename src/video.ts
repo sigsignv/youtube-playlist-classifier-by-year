@@ -59,13 +59,13 @@ async function fetchVideosFromPlaylist(client: OAuth2Client, options: FetchVideo
     return { videos, nextPageToken }
 }
 
-export async function getVideos(client: OAuth2Client, playlistId: string): Promise<Video[]> {
-    let resp = await fetchVideosFromPlaylist(client, { playlistId })
+export async function getVideosFromPlaylist(client: OAuth2Client, id: string): Promise<Video[]> {
+    let resp = await fetchVideosFromPlaylist(client, { playlistId: id })
     let videos = resp.videos
 
     while (resp.nextPageToken) {
         resp = await fetchVideosFromPlaylist(client, {
-            playlistId: playlistId,
+            playlistId: id,
             pageToken: resp.nextPageToken,
         })
         videos = videos.concat(resp.videos)
