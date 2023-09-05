@@ -15,12 +15,12 @@ type FetchPlaylistOptions = {
     pageToken?: string
 }
 
-function convertPlaylist(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
+function convertPlaylists(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
     if (!Array.isArray(items) || items.length === 0) {
         return []
     }
 
-    const lists = []
+    const lists: Playlist[] = []
     for (const item of items) {
         const id = item.id
         const title = item.snippet?.title
@@ -43,7 +43,7 @@ async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistOp
         pageToken: options?.pageToken ?? ''
     })
 
-    const lists = convertPlaylist(resp.data.items)
+    const lists = convertPlaylists(resp.data.items)
     const nextPageToken = resp.data.nextPageToken
 
     return { lists, nextPageToken }
