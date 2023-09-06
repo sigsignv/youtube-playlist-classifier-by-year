@@ -8,6 +8,7 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
+    "date-fns": "^2.30.0",
     "google-auth-library": "^9.0.0",
     "googleapis": "^126.0.1",
     "ts-node": "^10.9.1",
