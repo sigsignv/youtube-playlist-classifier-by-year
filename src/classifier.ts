@@ -32,25 +32,29 @@ function validateMonth(month: string): boolean {
     return false
 }
 
+function getPeriod(groups?: { [key: string]: string } | null): string | null {
+    const year = groups?.year
+    if (year && validateYear(year)) {
+        return year
+    }
+
+    const month = groups?.month
+    if (month && validateMonth(month)) {
+        return month
+    }
+
+    return null
+}
+
 export async function getYearlyWatchLists(client: OAuth2Client) {
+    const re = /^WL ((?<year>\d{4})|(?<month>\d{4}-\d{2}))$/
     const yearlyWatchLists: YaerlyWatchLists = {}
 
     const ownPlaylists = await getOwnPlaylists(client)
-    const regexp = /^WL ((?<year>\d{4})|(?<month>\d{4}-\d{2}))$/
     for (const list of ownPlaylists) {
-        const result = list.title.match(regexp)
-        if (!result) {
-            continue
-        }
-
-        const year = result.groups?.year
-        if (year && validateYear(year)) {
-            yearlyWatchLists[year] = list.id
-        }
-
-        const month = result.groups?.month
-        if (month && validateMonth(month)) {
-            yearlyWatchLists[month] = list.id
+        const period = getPeriod(list.title.match(re)?.groups)
+        if (period) {
+            yearlyWatchLists[period] = list.id
         }
     }
 
