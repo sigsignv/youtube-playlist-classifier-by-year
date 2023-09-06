@@ -1,4 +1,4 @@
-import { isAfter, startOfYear } from 'date-fns'
+import { isAfter, startOfMonth, startOfYear } from 'date-fns'
 import { OAuth2Client } from "google-auth-library"
 import { getOwnPlaylists } from "./playlist"
 
@@ -6,13 +6,26 @@ type YaerlyWatchLists = {
     [key: string]: string
 }
 
-export function validateYear(year: string): boolean {
-    if (typeof year !== 'string') {
+function validateYear(year: string): boolean {
+    if (typeof year !== 'string' || !(/^\d{4}$/.test(year))) {
         return false
     }
 
     const startAtYouTube = new Date('2005-02-14')
     if (isAfter(new Date(year), startOfYear(startAtYouTube))) {
+        return true
+    }
+
+    return false
+}
+
+function validateMonth(month: string): boolean {
+    if (typeof month !== 'string' || !(/^\d{4}-\d{2}$/.test(month))) {
+        return false
+    }
+
+    const startAtYouTube = new Date('2005-02-14')
+    if (isAfter(new Date(month), startOfMonth(startAtYouTube))) {
         return true
     }
 
@@ -36,7 +49,7 @@ export async function getYearlyWatchLists(client: OAuth2Client) {
         }
 
         const month = result.groups?.month
-        if (month) {
+        if (month && validateMonth(month)) {
             yearlyWatchLists[month] = list.id
         }
     }
