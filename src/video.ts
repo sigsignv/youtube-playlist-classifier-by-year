@@ -73,3 +73,17 @@ export async function getVideosFromPlaylist(client: OAuth2Client, id: string): P
 
     return videos
 }
+
+export async function containsVideoInPlaylists(client: OAuth2Client, playlistIds: string[]): Promise<(videoId: string) => boolean> {
+    const list = new Set()
+    for (const playlistId of playlistIds) {
+        const videos = await getVideosFromPlaylist(client, playlistId)
+        for (const video of videos) {
+            list.add(video.id)
+        }
+    }
+
+    return (videoId: string): boolean => {
+        return list.has(videoId)
+    }
+}
