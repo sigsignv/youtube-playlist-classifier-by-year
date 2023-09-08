@@ -87,3 +87,23 @@ export async function containsVideoInPlaylists(client: OAuth2Client, playlistIds
         return list.has(videoId)
     }
 }
+
+export async function addVideoIntoPlaylist(client: OAuth2Client, playlistId: string, videoId: string): Promise<boolean> {
+    const youtube = google.youtube({ version: 'v3' })
+
+    const resp = await youtube.playlistItems.insert({
+        part: ['snippet'],
+        auth: client,
+        requestBody: {
+            snippet: {
+                playlistId: playlistId,
+                resourceId: {
+                    kind: 'youtube#video',
+                    videoId: videoId,
+                },
+            },
+        },
+    })
+
+    return resp.status === 200
+}
