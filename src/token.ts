@@ -1,6 +1,6 @@
 import { Credentials } from 'google-auth-library'
-import { readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
+import { readConfigFile, writeConfigFile } from './auth/file'
 
 export type Token = {
     id: string
@@ -13,7 +13,7 @@ function getConfigPath(): string {
 }
 
 async function readConfig(filepath: string): Promise<Token> {
-    const contents = await readFile(filepath, { encoding: 'utf-8' })
+    const contents = await readConfigFile(filepath)
     const json = JSON.parse(contents)
     const token: Token = {
         id: json['CLIENT_ID'] ?? '',
@@ -34,10 +34,7 @@ async function writeConfig(filepath: string, token: Token): Promise<void> {
         CREDENTIALS: token.credentials,
     }
     const contents = JSON.stringify(json, null, 2)
-    return await writeFile(filepath, contents, {
-        encoding: 'utf-8',
-        flag: 'w',
-    })
+    return await writeConfigFile(filepath, contents)
 }
 
 export function getConfig(): Promise<Token> {
