@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
-import { createInterface } from 'node:readline/promises'
-import { getConfig, setConfig } from './token.ts'
+import { getNewCredentials } from './auth/terminal'
+import { getConfig, setConfig } from './token'
 
 export async function getOAuth2Client(): Promise<OAuth2Client> {
     const token = await getConfig()
@@ -11,23 +11,9 @@ export async function getOAuth2Client(): Promise<OAuth2Client> {
         return client
     }
 
-    const url = client.generateAuthUrl({
-        access_type: 'offline',
-        scope: ['https://www.googleapis.com/auth/youtube'],
-    })
-    console.log('Auth URL: ', url)
-
-    const terminal = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    })
-    const answer = await terminal.question('Enter code: ')
-    terminal.close()
-    const response = await client.getToken(answer)
-
-    token.credentials = response.tokens
+    token.credentials = await getNewCredentials(client)
     await setConfig(token)
 
-    client.credentials = response.tokens
+    client.credentials = token.credentials
     return client
 }
