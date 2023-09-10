@@ -5,10 +5,12 @@ import { readConfigFile, writeConfigFile } from './file'
 import { getNewRefreshToken } from './terminal'
 import { dumpToken, parseToken } from './token'
 
+export type YouTubeClient = OAuth2Client
+
 const OAuth2 = google.auth.OAuth2
 const RedirectUri = 'urn:ietf:wg:oauth:2.0:oob'
 
-function getClientFromEnv(): OAuth2Client | null {
+function getClientFromEnv(): YouTubeClient | null {
     const id = env.YOUTUBE_CLIENT_ID
     const secret = env.YOUTUBE_CLIENT_SECRET
     const token = env.YOUTUBE_REFRESH_TOKEN
@@ -25,7 +27,7 @@ function getClientFromEnv(): OAuth2Client | null {
     return client
 }
 
-async function getClientFromFile(filepath: string): Promise<OAuth2Client> {
+async function getClientFromFile(filepath: string): Promise<YouTubeClient> {
     const token = parseToken(await readConfigFile(filepath))
 
     const client = new OAuth2(token.CLIENT_ID, token.CLIENT_SECRET, RedirectUri)
@@ -41,6 +43,6 @@ async function getClientFromFile(filepath: string): Promise<OAuth2Client> {
     return client
 }
 
-export async function getOAuth2Client(filepath: string): Promise<OAuth2Client> {
+export async function getYouTubeClient(filepath: string): Promise<YouTubeClient> {
     return getClientFromEnv() ?? getClientFromFile(filepath)
 }
