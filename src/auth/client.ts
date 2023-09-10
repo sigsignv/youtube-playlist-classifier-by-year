@@ -29,11 +29,17 @@ async function getClientFromFile(filepath: string): Promise<OAuth2Client> {
     const token = parseToken(await readConfigFile(filepath))
 
     const client = new OAuth2(token.CLIENT_ID, token.CLIENT_SECRET, RedirectUri)
-    if (!token.CREDENTIALS) {
-        token.CREDENTIALS = await getNewCredentials(client)
+    if (!token.REFRESH_TOKEN) {
+        const credentials = await getNewCredentials(client)
+        if (!credentials.refresh_token) {
+            throw new Error('Require REFRESH_TOKEN in Response')
+        }
+        token.REFRESH_TOKEN = credentials.refresh_token
         await writeConfigFile(filepath, dumpToken(token))
     }
-    client.setCredentials(token.CREDENTIALS)
+    client.setCredentials({
+        refresh_token: token.REFRESH_TOKEN
+    })
 
     return client
 }

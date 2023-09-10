@@ -1,9 +1,7 @@
-import { Credentials } from 'google-auth-library'
-
 export type Token = {
     CLIENT_ID: string
     CLIENT_SECRET: string
-    CREDENTIALS?: Credentials
+    REFRESH_TOKEN?: string
 }
 
 export function parseToken(data: string): Token {
