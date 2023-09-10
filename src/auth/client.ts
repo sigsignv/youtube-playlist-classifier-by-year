@@ -2,7 +2,7 @@ import { OAuth2Client } from 'google-auth-library'
 import { google } from 'googleapis'
 import { env } from 'node:process'
 import { readConfigFile, writeConfigFile } from './file'
-import { getNewCredentials } from './terminal'
+import { getNewRefreshToken } from './terminal'
 import { dumpToken, parseToken } from './token'
 
 const OAuth2 = google.auth.OAuth2
@@ -30,11 +30,8 @@ async function getClientFromFile(filepath: string): Promise<OAuth2Client> {
 
     const client = new OAuth2(token.CLIENT_ID, token.CLIENT_SECRET, RedirectUri)
     if (!token.REFRESH_TOKEN) {
-        const credentials = await getNewCredentials(client)
-        if (!credentials.refresh_token) {
-            throw new Error('Require REFRESH_TOKEN in Response')
-        }
-        token.REFRESH_TOKEN = credentials.refresh_token
+        const refreshToken = await getNewRefreshToken(client)
+        token.REFRESH_TOKEN = refreshToken
         await writeConfigFile(filepath, dumpToken(token))
     }
     client.setCredentials({

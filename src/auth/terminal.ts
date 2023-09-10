@@ -1,7 +1,7 @@
-import { Credentials, OAuth2Client } from 'google-auth-library'
+import { OAuth2Client } from 'google-auth-library'
 import { createInterface } from 'node:readline/promises'
 
-export async function getNewCredentials(client: OAuth2Client): Promise<Credentials> {
+export async function getNewRefreshToken(client: OAuth2Client): Promise<string> {
     const authUrl = client.generateAuthUrl({
         access_type: 'offline',
         scope: [
@@ -18,5 +18,10 @@ export async function getNewCredentials(client: OAuth2Client): Promise<Credentia
     terminal.close()
 
     const resp = await client.getToken(code)
-    return resp.tokens
+    const token = resp.tokens.refresh_token
+    if (!token) {
+        throw new Error('Require refresh_token in Response')
+    }
+
+    return token
 }
