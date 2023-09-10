@@ -9,7 +9,7 @@ export type Token = {
     credentials?: Credentials
 }
 
-function getConfigPath(): string {
+export function getConfigPath(): string {
     return resolve(dirname(__dirname), './config.json')
 }
 
