@@ -43,6 +43,15 @@ async function getClientFromFile(filepath: string): Promise<YouTubeClient> {
     return client
 }
 
-export async function getYouTubeClient(filepath: string): Promise<YouTubeClient> {
-    return getClientFromEnv() ?? getClientFromFile(filepath)
+export async function getYouTubeClient(filepath?: string): Promise<YouTubeClient> {
+    const client = getClientFromEnv()
+    if (client) {
+        return client
+    }
+
+    if (!filepath) {
+        throw new Error('[getYouTubeClient] Require filepath (or ENV)')
+    }
+
+    return await getClientFromFile(filepath)
 }
