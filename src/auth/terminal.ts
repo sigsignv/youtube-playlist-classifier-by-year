@@ -20,7 +20,7 @@ export async function getNewRefreshToken(client: OAuth2Client): Promise<string> 
     const resp = await client.getToken(code)
     const token = resp.tokens.refresh_token
     if (!token) {
-        throw new Error('Require refresh_token in Response')
+        throw new Error('[getNewRefreshToken] Require refresh_token in Response')
     }
 
     return token
