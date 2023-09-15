@@ -9,7 +9,7 @@ export type CreatePlaylistOptions = {
 }
 
 export async function createPlaylist(title: string, options: CreatePlaylistOptions) {
-    return await youtube.playlists.insert({
+    const resp = await youtube.playlists.insert({
         part: ['snippet', 'status'],
         auth: options.auth,
         requestBody: {
@@ -21,4 +21,15 @@ export async function createPlaylist(title: string, options: CreatePlaylistOptio
             },
         },
     })
+
+    if (resp.status !== 200) {
+        throw new Error(`[createPlaylist] Unexpected error: ${resp.statusText}`)
+    }
+
+    const kind = 'youtube#playlist'
+    if (resp.data.kind !== kind) {
+        throw new Error(`[createPlaylist] Should be response as '${kind}'`)
+    }
+
+    return resp
 }
