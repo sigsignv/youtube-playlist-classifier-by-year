@@ -19,13 +19,12 @@ function isToken(token: unknown): token is Token {
 }
 
 export function parseToken(json: string): Token {
-    const config: unknown = JSON.parse(json)
-
-    if (!isToken(config)) {
+    const token: unknown = JSON.parse(json)
+    if (!isToken(token)) {
         throw new Error('[parseToken] Require CLIENT_ID / CLIENT_SECRET as string')
     }
 
-    return config
+    return token
 }
 
 export function dumpToken(token: Token): string {
