@@ -1,14 +1,16 @@
-import { google } from 'googleapis'
-import { YouTubeClient } from '../auth/client'
+import { google, youtube_v3 } from 'googleapis'
 
 const youtube = google.youtube({ version: 'v3' })
 
-export type CreatePlaylistOptions = {
-    auth: YouTubeClient
-    privacyStatus?: 'private' | 'unlisted' | 'public'
+type YouTubeAuth = Exclude<youtube_v3.Params$Resource$Playlists$List['auth'], undefined>
+type PrivacyStatus = 'private' | 'unlisted' | 'public'
+
+export interface PlaylistOptions {
+    auth: YouTubeAuth
+    privacyStatus?: PrivacyStatus
 }
 
-export async function createPlaylist(title: string, options: CreatePlaylistOptions) {
+export async function createPlaylist(title: string, options: PlaylistOptions) {
     const resp = await youtube.playlists.insert({
         part: ['snippet', 'status'],
         auth: options.auth,
@@ -32,4 +34,13 @@ export async function createPlaylist(title: string, options: CreatePlaylistOptio
     }
 
     return resp
+}
+
+export async function dropPlaylist(id: string, options: PlaylistOptions): Promise<boolean> {
+    const resp = await youtube.playlists.delete({
+        auth: options.auth,
+        id: id,
+    })
+
+    return resp.status === 204
 }
