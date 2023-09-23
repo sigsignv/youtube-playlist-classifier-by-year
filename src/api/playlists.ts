@@ -53,11 +53,9 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
     })
 }
 
-export async function dropPlaylist(id: string, options: PlaylistOptions): Promise<boolean> {
-    const resp = await youtube.playlists.delete({
+export async function dropPlaylist(id: string, options: PlaylistOptions): Promise<void> {
+    await youtube.playlists.delete({
         auth: options.auth,
         id: id,
     })
-
-    return resp.status === 204
 }
