@@ -1,53 +1,30 @@
 import { google, youtube_v3 } from 'googleapis'
+import { z } from 'zod'
 
 const youtube = google.youtube({ version: 'v3' })
 
+const privacyStatus = [
+    'private',
+    'unlisted',
+    'public'
+] as const
+
 type YouTubeAuth = Exclude<youtube_v3.Params$Resource$Playlists$List['auth'], undefined>
-type PrivacyStatus = 'private' | 'unlisted' | 'public'
+type PrivacyStatus = typeof privacyStatus[number]
 
 export interface PlaylistOptions {
     auth: YouTubeAuth
     privacyStatus?: PrivacyStatus
 }
 
-export interface YouTubePlaylist {
-    id: string
-    title: string
-    privacyStatus: PrivacyStatus
-    publishedAt: string
-}
+const youTubePlaylist = z.object({
+    id: z.string(),
+    title: z.string(),
+    privacyStatus: z.enum(privacyStatus),
+    publishedAt: z.string(),
+})
 
-function isPrivacyStatus(status: string | null | undefined): status is PrivacyStatus {
-    if (typeof status !== 'string') {
-        return false
-    }
-    if (!['private', 'unlisted', 'public'].includes(status)) {
-        return false
-    }
-
-    return true
-}
-
-function convertPlaylist(data: youtube_v3.Schema$Playlist): YouTubePlaylist {
-    const id = data.id
-    if (typeof id !== 'string') {
-        throw new Error('[convertPlaylist] Require id as string')
-    }
-    const title = data.snippet?.title
-    if (typeof title !== 'string') {
-        throw new Error('[convertPlaylist] Require title as string')
-    }
-    const privacyStatus = data.status?.privacyStatus
-    if (!isPrivacyStatus(privacyStatus)) {
-        throw new Error('[convertPlaylist] Require privacyStatus as private, unlisted or public')
-    }
-    const publishedAt = data.snippet?.publishedAt
-    if (typeof publishedAt !== 'string') {
-        throw new Error('[convertPlaylist] Require publishedAt as string')
-    }
-
-    return { id, title, privacyStatus, publishedAt }
-}
+export type YouTubePlaylist = z.infer<typeof youTubePlaylist>
 
 export async function createPlaylist(title: string, options: PlaylistOptions): Promise<YouTubePlaylist> {
     const resp = await youtube.playlists.insert({
@@ -68,7 +45,12 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
         throw new Error(`[createPlaylist] Should be response as '${kind}'`)
     }
 
-    return convertPlaylist(resp.data)
+    return youTubePlaylist.parse({
+        id: resp.data.id,
+        title: resp.data.snippet?.title,
+        privacyStatus: resp.data.status?.privacyStatus,
+        publishedAt: resp.data.snippet?.publishedAt,
+    })
 }
 
 export async function dropPlaylist(id: string, options: PlaylistOptions): Promise<boolean> {
