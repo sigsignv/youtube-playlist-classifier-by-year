@@ -16,10 +16,10 @@ export async function getNewRefreshToken(client: OAuth2Client): Promise<string> 
     terminal.close()
 
     const resp = await client.getToken(code)
-    const token = resp.tokens.refresh_token
-    if (!token) {
+    const refreshToken = resp.tokens.refresh_token
+    if (!refreshToken) {
         throw new Error('[getNewRefreshToken] Require refresh_token in Response')
     }
 
-    return token
+    return refreshToken
 }
