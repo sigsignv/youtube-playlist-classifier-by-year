@@ -1,5 +1,5 @@
 import { OAuth2Client } from 'google-auth-library'
-import { google, youtube_v3 } from 'googleapis'
+import { youtube_v3, youtube as YouTubeFactory } from '@googleapis/youtube'
 
 type Playlist = {
     id: string
@@ -33,7 +33,7 @@ function convertPlaylists(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
 }
 
 async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistsOptions): Promise<FetchPlaylistsResponse> {
-    const youtube = google.youtube({ version: 'v3' })
+    const youtube = YouTubeFactory({ version: 'v3' })
 
     const resp = await youtube.playlists.list({
         part: ['snippet'],
@@ -62,7 +62,7 @@ export async function getOwnPlaylists(client: OAuth2Client): Promise<Playlist[]>
 }
 
 export async function createPlaylist(client: OAuth2Client, title: string): Promise<Playlist> {
-    const youtube = google.youtube({ version: 'v3' })
+    const youtube = YouTubeFactory({ version: 'v3' })
 
     const response = await youtube.playlists.insert({
         part: ['snippet', 'status'],

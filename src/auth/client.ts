@@ -1,5 +1,4 @@
 import { OAuth2Client } from 'google-auth-library'
-import { google } from 'googleapis'
 import { env } from 'node:process'
 import { readConfigFile, writeConfigFile } from './file'
 import { getNewRefreshToken } from './terminal'
@@ -7,7 +6,6 @@ import { dumpToken, parseToken } from './token'
 
 export type YouTubeClient = OAuth2Client
 
-const OAuth2 = google.auth.OAuth2
 const RedirectUri = 'urn:ietf:wg:oauth:2.0:oob'
 
 function getClientFromEnv(): YouTubeClient | null {
@@ -19,7 +17,7 @@ function getClientFromEnv(): YouTubeClient | null {
         return null
     }
 
-    const client = new OAuth2(id, secret, RedirectUri)
+    const client = new OAuth2Client(id, secret, RedirectUri)
     client.setCredentials({
         refresh_token: token
     })
@@ -30,7 +28,7 @@ function getClientFromEnv(): YouTubeClient | null {
 async function getClientFromFile(filepath: string): Promise<YouTubeClient> {
     const token = parseToken(await readConfigFile(filepath))
 
-    const client = new OAuth2(token.CLIENT_ID, token.CLIENT_SECRET, RedirectUri)
+    const client = new OAuth2Client(token.CLIENT_ID, token.CLIENT_SECRET, RedirectUri)
     if (!token.REFRESH_TOKEN) {
         const refreshToken = await getNewRefreshToken(client)
         token.REFRESH_TOKEN = refreshToken

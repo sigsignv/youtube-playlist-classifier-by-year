@@ -1,7 +1,7 @@
-import { google, youtube_v3 } from 'googleapis'
+import { youtube_v3, youtube as YouTubeFactory } from '@googleapis/youtube'
 import { z } from 'zod'
 
-const youtube = google.youtube({ version: 'v3' })
+const youtube = YouTubeFactory({ version: 'v3' })
 
 const privacyStatus = [
     'private',
