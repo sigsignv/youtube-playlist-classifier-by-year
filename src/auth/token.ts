@@ -3,7 +3,7 @@ import { z } from 'zod'
 const Token = z.object({
     CLIENT_ID: z.string(),
     CLIENT_SECRET: z.string(),
-    REFRESH_TOKEN: z.string().optional()
+    REFRESH_TOKEN: z.string().optional(),
 })
 
 export type Token = z.infer<typeof Token>

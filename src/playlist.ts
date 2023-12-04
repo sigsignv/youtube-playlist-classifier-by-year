@@ -1,5 +1,5 @@
+import { youtube as YouTubeFactory, youtube_v3 } from '@googleapis/youtube'
 import { OAuth2Client } from 'google-auth-library'
-import { youtube_v3, youtube as YouTubeFactory } from '@googleapis/youtube'
 
 type Playlist = {
     id: string
@@ -25,14 +25,17 @@ function convertPlaylists(items?: youtube_v3.Schema$Playlist[]): Playlist[] {
         const id = item.id
         const title = item.snippet?.title
         if (typeof id === 'string' && typeof title === 'string') {
-            lists.push({id, title})
+            lists.push({ id, title })
         }
     }
 
     return lists
 }
 
-async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistsOptions): Promise<FetchPlaylistsResponse> {
+async function fetchOwnPlaylists(
+    client: OAuth2Client,
+    options?: FetchPlaylistsOptions,
+): Promise<FetchPlaylistsResponse> {
     const youtube = YouTubeFactory({ version: 'v3' })
 
     const resp = await youtube.playlists.list({
@@ -40,7 +43,7 @@ async function fetchOwnPlaylists(client: OAuth2Client, options?: FetchPlaylistsO
         auth: client,
         maxResults: 50,
         mine: true,
-        pageToken: options?.pageToken ?? ''
+        pageToken: options?.pageToken ?? '',
     })
 
     const lists = convertPlaylists(resp.data.items)

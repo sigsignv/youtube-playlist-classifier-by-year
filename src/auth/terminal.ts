@@ -1,12 +1,10 @@
-import { OAuth2Client } from 'google-auth-library'
 import { createInterface } from 'node:readline/promises'
+import { OAuth2Client } from 'google-auth-library'
 
 export async function getNewRefreshToken(client: OAuth2Client): Promise<string> {
     const authUrl = client.generateAuthUrl({
         access_type: 'offline',
-        scope: [
-            'https://www.googleapis.com/auth/youtube'
-        ],
+        scope: ['https://www.googleapis.com/auth/youtube'],
     })
     console.log('Please access to authorize URL:', authUrl)
 

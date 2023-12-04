@@ -1,5 +1,5 @@
-import { OAuth2Client } from "google-auth-library"
-import { youtube_v3, youtube as YouTubeFactory } from "@googleapis/youtube"
+import { youtube as YouTubeFactory, youtube_v3 } from '@googleapis/youtube'
+import { OAuth2Client } from 'google-auth-library'
 
 type Video = {
     id: string
@@ -42,7 +42,10 @@ function convertVideos(items?: youtube_v3.Schema$PlaylistItem[]): Video[] {
     return videos
 }
 
-async function fetchVideosFromPlaylist(client: OAuth2Client, options: FetchVideosOptions): Promise<FetchVideosResponse> {
+async function fetchVideosFromPlaylist(
+    client: OAuth2Client,
+    options: FetchVideosOptions,
+): Promise<FetchVideosResponse> {
     const youtube = YouTubeFactory({ version: 'v3' })
 
     const resp = await youtube.playlistItems.list({
@@ -50,7 +53,7 @@ async function fetchVideosFromPlaylist(client: OAuth2Client, options: FetchVideo
         auth: client,
         playlistId: options.playlistId,
         maxResults: 50,
-        pageToken: options.pageToken ?? ''
+        pageToken: options.pageToken ?? '',
     })
 
     const videos = convertVideos(resp.data.items)
@@ -74,7 +77,10 @@ export async function getVideosFromPlaylist(client: OAuth2Client, id: string): P
     return videos
 }
 
-export async function containsVideoInPlaylists(client: OAuth2Client, playlistIds: string[]): Promise<(videoId: string) => boolean> {
+export async function containsVideoInPlaylists(
+    client: OAuth2Client,
+    playlistIds: string[],
+): Promise<(videoId: string) => boolean> {
     const list = new Set()
     for (const playlistId of playlistIds) {
         const videos = await getVideosFromPlaylist(client, playlistId)
@@ -88,7 +94,11 @@ export async function containsVideoInPlaylists(client: OAuth2Client, playlistIds
     }
 }
 
-export async function addVideoIntoPlaylist(client: OAuth2Client, playlistId: string, videoId: string): Promise<boolean> {
+export async function addVideoIntoPlaylist(
+    client: OAuth2Client,
+    playlistId: string,
+    videoId: string,
+): Promise<boolean> {
     const youtube = YouTubeFactory({ version: 'v3' })
 
     const resp = await youtube.playlistItems.insert({

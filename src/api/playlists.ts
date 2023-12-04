@@ -1,16 +1,12 @@
-import { youtube_v3, youtube as YouTubeFactory } from '@googleapis/youtube'
+import { youtube as YouTubeFactory, youtube_v3 } from '@googleapis/youtube'
 import { z } from 'zod'
 
 const youtube = YouTubeFactory({ version: 'v3' })
 
-const privacyStatus = [
-    'private',
-    'unlisted',
-    'public'
-] as const
+const privacyStatus = ['private', 'unlisted', 'public'] as const
 
 type YouTubeAuth = Exclude<youtube_v3.Params$Resource$Playlists$List['auth'], undefined>
-type PrivacyStatus = typeof privacyStatus[number]
+type PrivacyStatus = (typeof privacyStatus)[number]
 
 export interface PlaylistOptions {
     auth: YouTubeAuth
@@ -35,7 +31,7 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
                 title: title,
             },
             status: {
-                privacyStatus: options.privacyStatus ?? 'private'
+                privacyStatus: options.privacyStatus ?? 'private',
             },
         },
     })

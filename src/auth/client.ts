@@ -1,5 +1,5 @@
-import { OAuth2Client } from 'google-auth-library'
 import { env } from 'node:process'
+import { OAuth2Client } from 'google-auth-library'
 import { readConfigFile, writeConfigFile } from './file'
 import { getNewRefreshToken } from './terminal'
 import { dumpToken, parseToken } from './token'
@@ -19,7 +19,7 @@ function getClientFromEnv(): YouTubeClient | null {
 
     const client = new OAuth2Client(id, secret, RedirectUri)
     client.setCredentials({
-        refresh_token: token
+        refresh_token: token,
     })
 
     return client
@@ -35,7 +35,7 @@ async function getClientFromFile(filepath: string): Promise<YouTubeClient> {
         await writeConfigFile(filepath, dumpToken(token))
     }
     client.setCredentials({
-        refresh_token: token.REFRESH_TOKEN
+        refresh_token: token.REFRESH_TOKEN,
     })
 
     return client

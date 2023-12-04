@@ -1,6 +1,6 @@
 import { format, isAfter, startOfMonth, startOfYear, subMonths } from 'date-fns'
-import { OAuth2Client } from "google-auth-library"
-import { createPlaylist, getOwnPlaylists } from "./playlist"
+import { OAuth2Client } from 'google-auth-library'
+import { createPlaylist, getOwnPlaylists } from './playlist'
 import { addVideoIntoPlaylist, containsVideoInPlaylists, getVideosFromPlaylist } from './video'
 
 type YaerlyWatchLists = {
@@ -8,7 +8,7 @@ type YaerlyWatchLists = {
 }
 
 function validateYear(year: string): boolean {
-    if (typeof year !== 'string' || !(/^\d{4}$/.test(year))) {
+    if (typeof year !== 'string' || !/^\d{4}$/.test(year)) {
         return false
     }
 
@@ -21,7 +21,7 @@ function validateYear(year: string): boolean {
 }
 
 function validateMonth(month: string): boolean {
-    if (typeof month !== 'string' || !(/^\d{4}-\d{2}$/.test(month))) {
+    if (typeof month !== 'string' || !/^\d{4}-\d{2}$/.test(month)) {
         return false
     }
 
@@ -62,7 +62,12 @@ export async function getYearlyWatchLists(client: OAuth2Client): Promise<YaerlyW
     return yearlyWatchLists
 }
 
-async function addVideoWithPeriod(client: OAuth2Client, lists: YaerlyWatchLists, period: string, videoId: string): Promise<boolean> {
+async function addVideoWithPeriod(
+    client: OAuth2Client,
+    lists: YaerlyWatchLists,
+    period: string,
+    videoId: string,
+): Promise<boolean> {
     let playlistId = lists[period]
     if (!playlistId) {
         const playlist = await createPlaylist(client, `WL ${period}`)
