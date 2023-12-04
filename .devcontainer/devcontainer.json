@@ -12,8 +12,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-azuretools.vscode-docker",
-				"EditorConfig.EditorConfig"
+				"EditorConfig.EditorConfig",
+				"biomejs.biome"
 			],
             "settings": {}
 		}
