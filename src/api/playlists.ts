@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library'
 import { z } from 'zod'
-import { YouTubeFactory } from './factory'
+import { YouTubeClient } from './factory'
 
 export interface PlaylistOptions {
     auth: OAuth2Client
@@ -14,15 +14,11 @@ const youTubePlaylist = z.object({
 
 export type YouTubePlaylist = z.infer<typeof youTubePlaylist>
 
-export async function createPlaylist(title: string, options: PlaylistOptions): Promise<YouTubePlaylist> {
-    const youtube = YouTubeFactory(options.auth)
-
+export async function createPlaylist(youtube: YouTubeClient, title: string): Promise<YouTubePlaylist> {
     const resp = await youtube.playlists.insert({
         part: ['snippet', 'status'],
         requestBody: {
-            snippet: {
-                title: title,
-            },
+            snippet: { title },
             status: {
                 privacyStatus: 'private',
             },
@@ -41,10 +37,6 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
     })
 }
 
-export async function dropPlaylist(id: string, options: PlaylistOptions): Promise<void> {
-    const youtube = YouTubeFactory(options.auth)
-
-    await youtube.playlists.delete({
-        id: id,
-    })
+export async function dropPlaylist(youtube: YouTubeClient, id: string): Promise<void> {
+    await youtube.playlists.delete({ id })
 }
