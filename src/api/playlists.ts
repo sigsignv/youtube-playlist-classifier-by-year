@@ -2,19 +2,13 @@ import { OAuth2Client } from 'google-auth-library'
 import { z } from 'zod'
 import { YouTubeFactory } from './factory'
 
-const privacyStatus = ['private', 'unlisted', 'public'] as const
-
-type PrivacyStatus = (typeof privacyStatus)[number]
-
 export interface PlaylistOptions {
     auth: OAuth2Client
-    privacyStatus?: PrivacyStatus
 }
 
 const youTubePlaylist = z.object({
     id: z.string(),
     title: z.string(),
-    privacyStatus: z.enum(privacyStatus),
     publishedAt: z.string(),
 })
 
@@ -30,7 +24,7 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
                 title: title,
             },
             status: {
-                privacyStatus: options.privacyStatus ?? 'private',
+                privacyStatus: 'private',
             },
         },
     })
@@ -43,7 +37,6 @@ export async function createPlaylist(title: string, options: PlaylistOptions): P
     return youTubePlaylist.parse({
         id: resp.data.id,
         title: resp.data.snippet?.title,
-        privacyStatus: resp.data.status?.privacyStatus,
         publishedAt: resp.data.snippet?.publishedAt,
     })
 }
