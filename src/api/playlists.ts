@@ -6,15 +6,16 @@ export interface PlaylistOptions {
     auth: OAuth2Client
 }
 
-const youTubePlaylist = z.object({
+const playlist = z.object({
+    kind: z.string(),
     id: z.string(),
     title: z.string(),
     publishedAt: z.string(),
 })
 
-export type YouTubePlaylist = z.infer<typeof youTubePlaylist>
+export type Playlist = z.infer<typeof playlist>
 
-export async function createPlaylist(youtube: YouTubeClient, title: string): Promise<YouTubePlaylist> {
+export async function createPlaylist(youtube: YouTubeClient, title: string): Promise<Playlist> {
     const resp = await youtube.playlists.insert({
         part: ['snippet', 'status'],
         requestBody: {
@@ -25,12 +26,8 @@ export async function createPlaylist(youtube: YouTubeClient, title: string): Pro
         },
     })
 
-    const kind = 'youtube#playlist'
-    if (resp.data.kind !== kind) {
-        throw new Error(`[createPlaylist] Should be response as '${kind}'`)
-    }
-
-    return youTubePlaylist.parse({
+    return playlist.parse({
+        kind: resp.data.kind,
         id: resp.data.id,
         title: resp.data.snippet?.title,
         publishedAt: resp.data.snippet?.publishedAt,
