@@ -5,7 +5,6 @@ const playlist = z.object({
     kind: z.string(),
     id: z.string(),
     title: z.string(),
-    publishedAt: z.string(),
 })
 
 export type Playlist = z.infer<typeof playlist>
@@ -30,7 +29,6 @@ export async function createPlaylist(youtube: YouTubeClient, title: string): Pro
         kind: resp.data.kind,
         id: resp.data.id,
         title: resp.data.snippet?.title,
-        publishedAt: resp.data.snippet?.publishedAt,
     })
 }
 
@@ -57,7 +55,6 @@ export async function getOwnPlaylists(youtube: YouTubeClient, pageToken?: string
                 kind: item.kind,
                 id: item.id,
                 title: item.snippet?.title,
-                publishedAt: item.snippet?.publishedAt,
             }),
         )
     }
