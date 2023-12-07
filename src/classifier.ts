@@ -1,7 +1,7 @@
 import { format, isAfter, startOfMonth, startOfYear, subMonths } from 'date-fns'
 import { OAuth2Client } from 'google-auth-library'
 import { YouTubeFactory } from './api/factory'
-import { createPlaylist, getOwnPlaylists } from './api/playlists'
+import { createPlaylist, getOwnPlaylists } from './api/playlist'
 import { addVideoIntoPlaylist, containsVideoInPlaylists, getVideosFromPlaylist } from './video'
 
 type YaerlyWatchLists = {
