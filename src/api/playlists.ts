@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { YouTubeClient } from './factory'
 
 const playlist = z.object({
-    kind: z.string(),
+    kind: z.literal('youtube#playlist'),
     id: z.string(),
     title: z.string(),
 })
