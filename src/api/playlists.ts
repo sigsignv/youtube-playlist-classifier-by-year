@@ -34,16 +34,36 @@ export async function dropPlaylist(youtube: YouTubeClient, id: string): Promise<
     await youtube.playlists.delete({ id })
 }
 
+export async function getPlaylistsByChannel(youtube: YouTubeClient, channelId: string): Promise<Playlist[]> {
+    return await getPlaylists(youtube, { channelId })
+}
+
+export async function getPlaylistsById(youtube: YouTubeClient, playlistId: string | string[]): Promise<Playlist[]> {
+    const id = typeof playlistId === 'string' ? [playlistId] : playlistId
+
+    return await getPlaylists(youtube, { id })
+}
+
+export async function getOwnPlaylists(youtube: YouTubeClient): Promise<Playlist[]> {
+    return await getPlaylists(youtube, { mine: true })
+}
+
 async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
-    const resp = await youtube.playlists.list(options)
+    const params: GetPlaylistsOptions = {
+        part: ['snippet'],
+        maxResults: 50,
+        ...options,
+    }
+
+    const resp = await youtube.playlists.list(params)
 
     const items = resp.data.items ?? []
     let nextPageToken = resp.data.nextPageToken
 
     while (nextPageToken) {
-        options.pageToken = nextPageToken
+        params.pageToken = nextPageToken
 
-        const resp = await youtube.playlists.list(options)
+        const resp = await youtube.playlists.list(params)
         if (Array.isArray(resp.data.items)) {
             items.push(...resp.data.items)
         }
@@ -62,12 +82,4 @@ async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions
     }
 
     return list
-}
-
-export async function getOwnPlaylists(youtube: YouTubeClient, pageToken?: string): Promise<Playlist[]> {
-    return await getPlaylists(youtube, {
-        part: ['snippet'],
-        maxResults: 3,
-        mine: true,
-    })
 }
