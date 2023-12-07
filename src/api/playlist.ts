@@ -7,10 +7,9 @@ const playlist = z.object({
     id: z.string(),
     title: z.string(),
 })
-
 export type Playlist = z.infer<typeof playlist>
 
-type GetPlaylistsOptions = youtube_v3.Params$Resource$Playlists$List
+export type GetPlaylistsOptions = youtube_v3.Params$Resource$Playlists$List
 
 export async function createPlaylist(youtube: YouTubeClient, title: string): Promise<Playlist> {
     const resp = await youtube.playlists.insert({
@@ -34,21 +33,7 @@ export async function dropPlaylist(youtube: YouTubeClient, id: string): Promise<
     await youtube.playlists.delete({ id })
 }
 
-export async function getPlaylistsByChannel(youtube: YouTubeClient, channelId: string): Promise<Playlist[]> {
-    return await getPlaylists(youtube, { channelId })
-}
-
-export async function getPlaylistsById(youtube: YouTubeClient, playlistId: string | string[]): Promise<Playlist[]> {
-    const id = typeof playlistId === 'string' ? [playlistId] : playlistId
-
-    return await getPlaylists(youtube, { id })
-}
-
-export async function getOwnPlaylists(youtube: YouTubeClient): Promise<Playlist[]> {
-    return await getPlaylists(youtube, { mine: true })
-}
-
-async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
+export async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
     const params: GetPlaylistsOptions = {
         part: ['snippet'],
         maxResults: 50,
@@ -82,4 +67,8 @@ async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions
     }
 
     return list
+}
+
+export async function getOwnPlaylists(youtube: YouTubeClient): Promise<Playlist[]> {
+    return await getPlaylists(youtube, { mine: true })
 }
