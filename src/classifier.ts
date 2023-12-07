@@ -1,6 +1,7 @@
 import { format, isAfter, startOfMonth, startOfYear, subMonths } from 'date-fns'
 import { OAuth2Client } from 'google-auth-library'
-import { createPlaylist, getOwnPlaylists } from './playlist'
+import { YouTubeFactory } from './api/factory'
+import { createPlaylist, getOwnPlaylists } from './api/playlists'
 import { addVideoIntoPlaylist, containsVideoInPlaylists, getVideosFromPlaylist } from './video'
 
 type YaerlyWatchLists = {
@@ -51,7 +52,9 @@ export async function getYearlyWatchLists(client: OAuth2Client): Promise<YaerlyW
     const re = /^WL ((?<year>\d{4})|(?<month>\d{4}-\d{2}))$/
     const yearlyWatchLists: YaerlyWatchLists = {}
 
-    const ownPlaylists = await getOwnPlaylists(client)
+    const youtube = YouTubeFactory(client)
+
+    const ownPlaylists = await getOwnPlaylists(youtube)
     for (const list of ownPlaylists) {
         const period = getPeriod(list.title.match(re)?.groups)
         if (period) {
@@ -68,9 +71,11 @@ async function addVideoWithPeriod(
     period: string,
     videoId: string,
 ): Promise<boolean> {
+    const youtube = YouTubeFactory(client)
+
     let playlistId = lists[period]
     if (!playlistId) {
-        const playlist = await createPlaylist(client, `WL ${period}`)
+        const playlist = await createPlaylist(youtube, `WL ${period}`)
         playlistId = playlist.id
         lists[period] = playlist.id
         console.log('Create Playlist: ', playlist.title)
