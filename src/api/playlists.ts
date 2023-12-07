@@ -1,3 +1,4 @@
+import { youtube_v3 } from '@googleapis/youtube'
 import { z } from 'zod'
 import { YouTubeClient } from './factory'
 
@@ -9,10 +10,7 @@ const playlist = z.object({
 
 export type Playlist = z.infer<typeof playlist>
 
-export type Playlists = {
-    nextPageToken?: string
-    items: Playlist[]
-}
+type GetPlaylistsOptions = youtube_v3.Params$Resource$Playlists$List
 
 export async function createPlaylist(youtube: YouTubeClient, title: string): Promise<Playlist> {
     const resp = await youtube.playlists.insert({
@@ -36,20 +34,24 @@ export async function dropPlaylist(youtube: YouTubeClient, id: string): Promise<
     await youtube.playlists.delete({ id })
 }
 
-export async function getOwnPlaylists(youtube: YouTubeClient, pageToken?: string): Promise<Playlists> {
-    const resp = await youtube.playlists.list({
-        part: ['snippet'],
-        maxResults: 50,
-        mine: true,
-        pageToken: pageToken ?? '',
-    })
+async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
+    const resp = await youtube.playlists.list(options)
 
-    if (!Array.isArray(resp.data.items)) {
-        return { items: [] }
+    const items = resp.data.items ?? []
+    let nextPageToken = resp.data.nextPageToken
+
+    while (nextPageToken) {
+        options.pageToken = nextPageToken
+
+        const resp = await youtube.playlists.list(options)
+        if (Array.isArray(resp.data.items)) {
+            items.push(...resp.data.items)
+        }
+        nextPageToken = resp.data.nextPageToken
     }
 
     const list: Playlist[] = []
-    for (const item of resp.data.items) {
+    for (const item of items) {
         list.push(
             playlist.parse({
                 kind: item.kind,
@@ -59,8 +61,13 @@ export async function getOwnPlaylists(youtube: YouTubeClient, pageToken?: string
         )
     }
 
-    return {
-        nextPageToken: resp.data.nextPageToken ?? undefined,
-        items: list,
-    }
+    return list
+}
+
+export async function getOwnPlaylists(youtube: YouTubeClient, pageToken?: string): Promise<Playlist[]> {
+    return await getPlaylists(youtube, {
+        part: ['snippet'],
+        maxResults: 3,
+        mine: true,
+    })
 }
