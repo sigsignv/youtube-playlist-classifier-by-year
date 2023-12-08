@@ -39,3 +39,7 @@ export async function addPlaylistItem(
         playlistId: resp.data.snippet?.playlistId,
     })
 }
+
+export async function deletePlaylistItem(youtube: YouTubeClient, playlistItemId: string): Promise<void> {
+    await youtube.playlistItems.delete({ id: playlistItemId })
+}
