@@ -1,3 +1,4 @@
+import { youtube_v3 } from '@googleapis/youtube'
 import { z } from 'zod'
 import { YouTubeClient } from './factory'
 
@@ -9,8 +10,9 @@ const playlistItem = z.object({
     channelId: z.string(),
     playlistId: z.string(),
 })
+export type PlaylistItem = z.infer<typeof playlistItem>
 
-type PlaylistItem = z.infer<typeof playlistItem>
+type GetPlaylistItemsOptions = youtube_v3.Params$Resource$Playlistitems$List
 
 export async function addPlaylistItem(
     youtube: YouTubeClient,
@@ -42,4 +44,46 @@ export async function addPlaylistItem(
 
 export async function deletePlaylistItem(youtube: YouTubeClient, playlistItemId: string): Promise<void> {
     await youtube.playlistItems.delete({ id: playlistItemId })
+}
+
+export async function getPlaylistItems(
+    youtube: YouTubeClient,
+    options: GetPlaylistItemsOptions,
+): Promise<PlaylistItem[]> {
+    const params: GetPlaylistItemsOptions = {
+        part: ['contentDetails', 'snippet'],
+        maxResults: 50,
+        ...options,
+    }
+
+    const resp = await youtube.playlistItems.list(params)
+
+    const items = resp.data.items ?? []
+    let nextPageToken = resp.data.nextPageToken
+
+    while (nextPageToken) {
+        params.pageToken = nextPageToken
+
+        const resp = await youtube.playlistItems.list(params)
+        if (Array.isArray(resp.data.items)) {
+            items.push(...resp.data.items)
+        }
+        nextPageToken = resp.data.nextPageToken
+    }
+
+    const list: PlaylistItem[] = []
+    for (const item of items) {
+        list.push(
+            playlistItem.parse({
+                kind: item.kind,
+                id: item.contentDetails?.videoId,
+                title: item.snippet?.title,
+                publishedAt: item.contentDetails?.videoPublishedAt,
+                channelId: item.snippet?.videoOwnerChannelId,
+                playlistId: item.snippet?.playlistId,
+            }),
+        )
+    }
+
+    return list
 }
