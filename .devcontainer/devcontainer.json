@@ -15,7 +15,19 @@
 				"EditorConfig.EditorConfig",
 				"biomejs.biome"
 			],
-            "settings": {}
+            "settings": {
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports.biome": true,
+					"quickfix.biome": true
+				},
+				"[javascript]": {
+					"editor.defaultFormatter": "biomejs.biome"
+				},
+				"[typescript]": {
+					"editor.defaultFormatter": "biomejs.biome"
+				}
+			}
 		}
 	}
 }
