@@ -57,7 +57,3 @@ export async function getPlaylists(youtube: YouTubeClient, options: GetPlaylists
 
     return list
 }
-
-export async function getOwnPlaylists(youtube: YouTubeClient): Promise<Playlist[]> {
-    return await getPlaylists(youtube, { mine: true })
-}

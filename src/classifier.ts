@@ -1,7 +1,7 @@
 import { format, isAfter, startOfMonth, startOfYear, subMonths } from 'date-fns'
 import { OAuth2Client } from 'google-auth-library'
 import { YouTubeFactory } from './api/factory'
-import { createPlaylist, getOwnPlaylists } from './api/playlist'
+import { createPlaylist, getPlaylists } from './api/playlist'
 import { addVideoIntoPlaylist, containsVideoInPlaylists, getVideosFromPlaylist } from './video'
 
 type YaerlyWatchLists = {
@@ -54,7 +54,7 @@ export async function getYearlyWatchLists(client: OAuth2Client): Promise<YaerlyW
 
     const youtube = YouTubeFactory(client)
 
-    const ownPlaylists = await getOwnPlaylists(youtube)
+    const ownPlaylists = await getPlaylists(youtube, { mine: true })
     for (const list of ownPlaylists) {
         const period = getPeriod(list.title.match(re)?.groups)
         if (period) {
