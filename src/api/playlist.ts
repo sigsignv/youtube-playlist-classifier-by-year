@@ -29,8 +29,8 @@ export async function createPlaylist(youtube: YouTubeClient, title: string): Pro
     })
 }
 
-export async function dropPlaylist(youtube: YouTubeClient, id: string): Promise<void> {
-    await youtube.playlists.delete({ id })
+export async function dropPlaylist(youtube: YouTubeClient, playlistId: string): Promise<void> {
+    await youtube.playlists.delete({ id: playlistId })
 }
 
 export async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
