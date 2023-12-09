@@ -34,37 +34,26 @@ export async function dropPlaylist(youtube: YouTubeClient, playlistId: string): 
 }
 
 export async function getPlaylists(youtube: YouTubeClient, options: GetPlaylistsOptions): Promise<Playlist[]> {
+    const list: Playlist[] = []
     const params: GetPlaylistsOptions = {
         part: ['snippet'],
         maxResults: 50,
         ...options,
     }
 
-    const resp = await youtube.playlists.list(params)
-
-    const items = resp.data.items ?? []
-    let nextPageToken = resp.data.nextPageToken
-
-    while (nextPageToken) {
-        params.pageToken = nextPageToken
-
+    do {
         const resp = await youtube.playlists.list(params)
-        if (Array.isArray(resp.data.items)) {
-            items.push(...resp.data.items)
+        for (const item of resp.data.items ?? []) {
+            list.push(
+                playlist.parse({
+                    kind: item.kind,
+                    id: item.id,
+                    title: item.snippet?.title,
+                }),
+            )
         }
-        nextPageToken = resp.data.nextPageToken
-    }
-
-    const list: Playlist[] = []
-    for (const item of items) {
-        list.push(
-            playlist.parse({
-                kind: item.kind,
-                id: item.id,
-                title: item.snippet?.title,
-            }),
-        )
-    }
+        params.pageToken = resp.data.nextPageToken ?? undefined
+    } while (params.pageToken)
 
     return list
 }
