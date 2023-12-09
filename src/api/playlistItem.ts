@@ -12,7 +12,7 @@ const playlistItem = z.object({
 })
 export type PlaylistItem = z.infer<typeof playlistItem>
 
-type GetPlaylistItemsOptions = youtube_v3.Params$Resource$Playlistitems$List
+export type GetPlaylistItemsOptions = youtube_v3.Params$Resource$Playlistitems$List
 
 export async function addPlaylistItem(
     youtube: YouTubeClient,
@@ -50,40 +50,29 @@ export async function getPlaylistItems(
     youtube: YouTubeClient,
     options: GetPlaylistItemsOptions,
 ): Promise<PlaylistItem[]> {
+    const list: PlaylistItem[] = []
     const params: GetPlaylistItemsOptions = {
         part: ['contentDetails', 'snippet'],
         maxResults: 50,
         ...options,
     }
 
-    const resp = await youtube.playlistItems.list(params)
-
-    const items = resp.data.items ?? []
-    let nextPageToken = resp.data.nextPageToken
-
-    while (nextPageToken) {
-        params.pageToken = nextPageToken
-
+    do {
         const resp = await youtube.playlistItems.list(params)
-        if (Array.isArray(resp.data.items)) {
-            items.push(...resp.data.items)
+        for (const item of resp.data.items ?? []) {
+            list.push(
+                playlistItem.parse({
+                    kind: item.kind,
+                    id: item.contentDetails?.videoId,
+                    title: item.snippet?.title,
+                    publishedAt: item.contentDetails?.videoPublishedAt,
+                    channelId: item.snippet?.videoOwnerChannelId,
+                    playlistId: item.snippet?.playlistId,
+                }),
+            )
         }
-        nextPageToken = resp.data.nextPageToken
-    }
-
-    const list: PlaylistItem[] = []
-    for (const item of items) {
-        list.push(
-            playlistItem.parse({
-                kind: item.kind,
-                id: item.contentDetails?.videoId,
-                title: item.snippet?.title,
-                publishedAt: item.contentDetails?.videoPublishedAt,
-                channelId: item.snippet?.videoOwnerChannelId,
-                playlistId: item.snippet?.playlistId,
-            }),
-        )
-    }
+        params.pageToken = resp.data.nextPageToken ?? undefined
+    } while (params.pageToken)
 
     return list
 }
